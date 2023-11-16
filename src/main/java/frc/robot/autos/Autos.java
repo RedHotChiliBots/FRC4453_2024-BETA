@@ -32,7 +32,7 @@ import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 
 public class Autos {
 	// Define Shuffleboard tab to hold competition info
@@ -45,6 +45,7 @@ public class Autos {
 	private PathPlannerPath pathZigZag3m = null;
 	private Command cmdZigZag3m = null;
 	private Command cmdAutoZigZag3m = null;
+	private SwerveControllerCommand swerveControllerCommand = null;
 
 	protected TrajectoryConfig config = new TrajectoryConfig(
 			Constants.AutoConstants.kMaxSpeedMetersPerSecond,
@@ -73,34 +74,42 @@ public class Autos {
 	public Autos(Chassis chassis) {
 		System.out.println("+++++ Starting Autos Constructor +++++");
 
+		swerveControllerCommand = new SwerveControllerCommand(
+				zigzag3Trajectory,
+				chassis::getPose,
+				Constants.DriveConstants.kDriveKinematics,
+				holonomicController,
+				chassis::setModuleStates,
+				chassis);
+
 		thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
 		// Configure the AutoBuilder fpr Swerve
 		AutoBuilder.configureHolonomic(
 				chassis::getPose, // Robot pose supplier
 				chassis::resetPose, // Method to reset odometry (will be called if your auto has a
-														// starting pose)
+				// starting pose)
 				chassis::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
 				chassis::driveRobotRelative, // Method that will drive the robot given ROBOT RELATIVE
-																			// ChassisSpeeds
+				// ChassisSpeeds
 				new HolonomicPathFollowerConfig( // HolonomicPathFollowerConfig, this should likely live
-																					// in your Constants class
+						// in your Constants class
 						new PIDConstants(ModuleConstants.kDrivingP,
 								0.0, 0.0), // Translation PID constants
 						new PIDConstants(ModuleConstants.kDrivingP,
 								0.0, 0.0), // Rotation PID constants
 						DriveConstants.kMaxSpeedMetersPerSecond, // Max module speed, in m/s
 						DriveConstants.kWheelRadius, // Drive base radius in meters. Distance
-																					// from robot center to
-																					// furthest module.
+						// from robot center to
+						// furthest module.
 						new ReplanningConfig() // Default path replanning config. See the API
-																		// for the options here
+														// for the options here
 				),
 				chassis // Reference to this subsystem to set requirements
 		);
 
 		// Register Named Commands
-//		NamedCommands.registerCommand("ZigZag3m", cmdZigZag3m);
+		// NamedCommands.registerCommand("ZigZag3m", cmdZigZag3m);
 
 		String temp = AutoBuilder.isConfigured() ? "IS" : "IS NOT";
 		System.out.println("AutoBuilder " + temp + " configured");
@@ -138,10 +147,11 @@ public class Autos {
 
 		// Initialize auton chooser with auton commands
 		chooser = AutoBuilder.buildAutoChooser();
-//		chooser = new SendableChooser<>();
+		// chooser = new SendableChooser<>();
 
-//		chooser.setDefaultOption("None", Commands.none());
-//		chooser.addOption("ZigZag3", cmdZigZag3m);
+		chooser.addOption("Traj ZigZag3Cmd", swerveControllerCommand);
+		chooser.addOption("Path ZigZag3Cmd", cmdZigZag3m);
+		chooser.addOption("Auto ZigZag3Cmd", cmdAutoZigZag3m);
 
 		// Add Auton Command chooser to Shuffleboard
 		compTab.add("Auton Command", chooser)
@@ -155,30 +165,4 @@ public class Autos {
 	public SendableChooser<Command> getChooser() {
 		return chooser;
 	}
-
-	// public static PathPlannerTrajectory scoreElement1 =
-	// PathPlanner.loadPath("ScoreElement1",
-	// new PathConstraints(4, 3));
-
-	// public static PathPlannerTrajectory selectElement2 =
-	// PathPlanner.loadPath("SelectElement2",
-	// new PathConstraints(4, 3));
-	// public static PathPlannerTrajectory scoreElement2 =
-	// PathPlanner.loadPath("ScoreElement2",
-	// new PathConstraints(4, 3));
-
-	// SwerveControllerCommand swerveControllerCommand =
-	// new SwerveControllerCommand(
-	// exampleTrajectory,
-	// s_Drive::getPose,
-	// Constants.DriveConstants.kDriveKinematics,
-	// holonomicController,
-	// s_Drive::setModuleStates,
-	// s_Drive);
-
-	// addCommands(
-	// new InstantCommand(() ->
-	// s_Drive.resetOdometry(exampleTrajectory.getInitialPose())),
-	// swerveControllerCommand
-	// );
 }
