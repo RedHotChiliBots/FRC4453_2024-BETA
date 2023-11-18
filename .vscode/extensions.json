@@ -1,0 +1,9 @@
+{
+	"recommendations": [
+		"pdconsec.vscode-print",
+		"vscjava.vscode-java-dependency",
+		"mhutchie.git-graph",
+		"github.vscode-pull-request-github",
+		"wpilibsuite.vscode-wpilib"
+	]
+}

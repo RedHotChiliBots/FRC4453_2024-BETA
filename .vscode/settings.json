@@ -26,5 +26,15 @@
     },
   ],
   "java.test.defaultConfig": "WPIlibUnitTests",
-  "java.debug.settings.onBuildFailureProceed": true
+"java.debug.settings.onBuildFailureProceed": true,
+"editor.tabSize": 3,
+"editor.insertSpaces": false,
+"editor.defaultFormatter": "redhat.java",
+"editor.detectIndentation": false,
+"editor.tabCompletion": "on",
+"editor.formatOnPaste": true,
+"editor.formatOnSave": true,
+"editor.formatOnType": true,
+"githubIssues.issueBranchTitle": "${user}/issue${issueNumber}",
+"files.autoSave": "afterDelay"
 }
