@@ -35,6 +35,20 @@
     "transitory": {
       "FMSInfo": {
         "open": true
+      },
+      "Shuffleboard": {
+        "Chassis": {
+          "open": true
+        },
+        "Competition": {
+          "Auton Command": {
+            "string[]##v_/Shuffleboard/Competition/Auton Command/options": {
+              "open": true
+            }
+          },
+          "open": true
+        },
+        "open": true
       }
     }
   },
