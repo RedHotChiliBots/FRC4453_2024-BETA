@@ -1,16 +1,15 @@
 package frc.robot.autos;
 
+import java.io.File;
+import java.util.List;
+
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleConstants;
 import frc.robot.subsystems.Chassis;
 
-import edu.wpi.first.wpilibj.Filesystem;
-
-import java.io.File;
-import java.util.List;
-
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
 import com.pathplanner.lib.path.EventMarker;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -28,6 +27,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -47,22 +47,22 @@ public class Autos {
 	private Command cmdAutoZigZag3m = null;
 	private SwerveControllerCommand swerveControllerCommand = null;
 
-	protected TrajectoryConfig config = new TrajectoryConfig(
+	private TrajectoryConfig config = new TrajectoryConfig(
 			Constants.AutoConstants.kMaxSpeedMetersPerSecond,
 			Constants.AutoConstants.kMaxAccelerationMetersPerSecondSquared)
 			.setKinematics(Constants.DriveConstants.kDriveKinematics);
 
-	protected ProfiledPIDController thetaController = new ProfiledPIDController(
+	private ProfiledPIDController thetaController = new ProfiledPIDController(
 			Constants.AutoConstants.kPThetaController, 0, 0,
 			Constants.AutoConstants.kThetaControllerConstraints);
 
-	protected HolonomicDriveController holonomicController = new HolonomicDriveController(
+	private HolonomicDriveController holonomicController = new HolonomicDriveController(
 			new PIDController(Constants.AutoConstants.kPXController, 0, 0),
 			new PIDController(Constants.AutoConstants.kPYController, 0, 0),
 			thetaController);
 
 	// An example trajectory to follow. All units in meters.
-	protected Trajectory zigzag3Trajectory = TrajectoryGenerator.generateTrajectory(
+	private Trajectory zigzag3Trajectory = TrajectoryGenerator.generateTrajectory(
 			// Start at the origin facing the +X direction
 			new Pose2d(0, 0, new Rotation2d(0)),
 			// Pass through these two interior waypoints, making an 's' curve path
@@ -74,6 +74,8 @@ public class Autos {
 	public Autos(Chassis chassis) {
 		System.out.println("+++++ Starting Autos Constructor +++++");
 
+		thetaController.enableContinuousInput(-Math.PI, Math.PI);
+
 		swerveControllerCommand = new SwerveControllerCommand(
 				zigzag3Trajectory,
 				chassis::getPose,
@@ -81,8 +83,6 @@ public class Autos {
 				holonomicController,
 				chassis::setModuleStates,
 				chassis);
-
-		thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
 		// Configure the AutoBuilder fpr Swerve
 		AutoBuilder.configureHolonomic(
@@ -117,37 +117,36 @@ public class Autos {
 		System.out.println("AutoBuilder Pathfinding " + temp + " configured");
 
 		// Initialize auton paths and autos
-		String pathStr = Filesystem.getDeployDirectory().getAbsolutePath() + File.separator + "pathplanner"
-				+ File.separator + "paths";
-		File paths = new File(pathStr);
-		System.out.println("Using Paths from default base location: " + paths.getAbsolutePath());
-		File[] pathList = paths.listFiles();
-		for (File file : pathList) {
-			System.out.println("\t" + file.getName());
-		}
+		// String pathStr = Filesystem.getDeployDirectory().getAbsolutePath() + File.separator + "pathplanner"
+		// 		+ File.separator + "paths";
+		// File paths = new File(pathStr);
+		// System.out.println("Using Paths from default base location: " + paths.getAbsolutePath());
+		// File[] pathList = paths.listFiles();
+		// for (File file : pathList) {
+		// 	System.out.println("\t" + file.getName());
+		// }
 
-		String autoStr = Filesystem.getDeployDirectory().getAbsolutePath() + File.separator + "pathplanner"
-				+ File.separator + "autos";
-		File autos = new File(autoStr);
-		System.out.println("Using Autos from default base location: " + autos.getAbsolutePath());
-		File[] autoList = autos.listFiles();
-		for (File file : autoList) {
-			System.out.println("\t" + file.getName());
-		}
+		// String autoStr = Filesystem.getDeployDirectory().getAbsolutePath() + File.separator + "pathplanner"
+		// 		+ File.separator + "autos";
+		// File autos = new File(autoStr);
+		// System.out.println("Using Autos from default base location: " + autos.getAbsolutePath());
+		// File[] autoList = autos.listFiles();
+		// for (File file : autoList) {
+		// 	System.out.println("\t" + file.getName());
+		// }
 
 		pathZigZag3m = PathPlannerPath.fromPathFile("ZigZag3m");
-		if (pathZigZag3m == null)
-			System.out.println("Path is NULL");
-		int pts = pathZigZag3m.numPoints();
-		List<EventMarker> events = pathZigZag3m.getEventMarkers();
-		System.out.println("Path ZigZag3m has " + pts + " points with " + events.size() + " events.");
-
 		cmdZigZag3m = AutoBuilder.followPathWithEvents(pathZigZag3m);
+		// if (pathZigZag3m == null)
+		// 	System.out.println("Path is NULL");
+		// int pts = pathZigZag3m.numPoints();
+		// List<EventMarker> events = pathZigZag3m.getEventMarkers();
+		// System.out.println("Path ZigZag3m has " + pts + " points with " + events.size() + " events.");
+
 		cmdAutoZigZag3m = new PathPlannerAuto("ZigZag3m");
 
 		// Initialize auton chooser with auton commands
 		chooser = AutoBuilder.buildAutoChooser();
-		// chooser = new SendableChooser<>();
 
 		chooser.addOption("Traj ZigZag3Cmd", swerveControllerCommand);
 		chooser.addOption("Path ZigZag3Cmd", cmdZigZag3m);
