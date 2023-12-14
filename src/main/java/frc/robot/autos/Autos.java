@@ -108,7 +108,9 @@ public class Autos {
 				chassis // Reference to this subsystem to set requirements
 		);
 
+		//********************************************
 		// Register Named Commands
+		// Note: Must be done before defining Auto commands
 		// NamedCommands.registerCommand("ZigZag3m", cmdZigZag3m);
 
 		String temp = AutoBuilder.isConfigured() ? "IS" : "IS NOT";
@@ -116,42 +118,26 @@ public class Autos {
 		temp = AutoBuilder.isPathfindingConfigured() ? "IS" : "IS NOT";
 		System.out.println("AutoBuilder Pathfinding " + temp + " configured");
 
-		// Initialize auton paths and autos
-		// String pathStr = Filesystem.getDeployDirectory().getAbsolutePath() + File.separator + "pathplanner"
-		// 		+ File.separator + "paths";
-		// File paths = new File(pathStr);
-		// System.out.println("Using Paths from default base location: " + paths.getAbsolutePath());
-		// File[] pathList = paths.listFiles();
-		// for (File file : pathList) {
-		// 	System.out.println("\t" + file.getName());
-		// }
-
-		// String autoStr = Filesystem.getDeployDirectory().getAbsolutePath() + File.separator + "pathplanner"
-		// 		+ File.separator + "autos";
-		// File autos = new File(autoStr);
-		// System.out.println("Using Autos from default base location: " + autos.getAbsolutePath());
-		// File[] autoList = autos.listFiles();
-		// for (File file : autoList) {
-		// 	System.out.println("\t" + file.getName());
-		// }
-
+		//********************************************
+		// Generate Paths and Path commands
 		pathZigZag3m = PathPlannerPath.fromPathFile("ZigZag3m");
 		cmdZigZag3m = AutoBuilder.followPathWithEvents(pathZigZag3m);
-		// if (pathZigZag3m == null)
-		// 	System.out.println("Path is NULL");
-		// int pts = pathZigZag3m.numPoints();
-		// List<EventMarker> events = pathZigZag3m.getEventMarkers();
-		// System.out.println("Path ZigZag3m has " + pts + " points with " + events.size() + " events.");
 
+		//********************************************
+		// Generate Auto commands
+		// Note: Named commands used in Auto command must be defined 
+		//		before defining the Auto command
 		cmdAutoZigZag3m = new PathPlannerAuto("ZigZag3m");
 
-		// Initialize auton chooser with auton commands
+		//********************************************
+		// Initialize auto command chooser with auton commands
 		chooser = AutoBuilder.buildAutoChooser();
 
 		chooser.addOption("Traj ZigZag3Cmd", swerveControllerCommand);
 		chooser.addOption("Path ZigZag3Cmd", cmdZigZag3m);
 		chooser.addOption("Auto ZigZag3Cmd", cmdAutoZigZag3m);
 
+		//********************************************
 		// Add Auton Command chooser to Shuffleboard
 		compTab.add("Auton Command", chooser)
 				.withWidget("ComboBox Chooser")
