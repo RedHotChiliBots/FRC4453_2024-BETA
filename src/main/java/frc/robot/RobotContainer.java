@@ -19,11 +19,16 @@ import frc.robot.Constants.AutoConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.autos.Autos;
+import frc.robot.commands.InitizaileLinearSlide;
 import frc.robot.subsystems.Chassis;
+import frc.robot.subsystems.LinearSlide;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+
 import java.util.List;
 
 /*
@@ -36,9 +41,11 @@ public class RobotContainer {
     // The robot's subsystems
     private final Chassis chassis = new Chassis();
     private final Autos auton = new Autos(chassis);
+    private final LinearSlide linearSlide = new LinearSlide();
 
     // The driver's controller
     XboxController m_driverController = new XboxController(OIConstants.kDriverControllerPort);
+    XboxController m_operatorController = new XboxController(OIConstants.kOperatorControllerPort);
 
     /**
      * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -58,6 +65,14 @@ public class RobotContainer {
                                 -MathUtil.applyDeadband(m_driverController.getRightX() / 2, OIConstants.kDriveDeadband),
                                 true, true),
                         chassis));
+
+        linearSlide.setDefaultCommand(
+                // The left stick controls translation of the robot.
+                // Turning is controlled by the X axis of the right stick.
+                new RunCommand(
+                        () -> linearSlide.joystickMovement(
+                                MathUtil.applyDeadband(m_operatorController.getLeftX(), OIConstants.kDriveDeadband)),
+                        linearSlide));
     }
 
     /**
@@ -74,6 +89,9 @@ public class RobotContainer {
                 .whileTrue(new RunCommand(
                         () -> chassis.setX(),
                         chassis));
+
+        new JoystickButton(m_operatorController, Button.kY.value)
+                .onTrue(new InitizaileLinearSlide(linearSlide));
     }
 
     /**
@@ -85,44 +103,47 @@ public class RobotContainer {
         return auton.getChooser().getSelected();
     }
 
-//     public Command getAutonomousCommand() {
-//         // Create config for trajectory
-//         TrajectoryConfig config = new TrajectoryConfig(
-//                 AutoConstants.kMaxSpeedMetersPerSecond,
-//                 AutoConstants.kMaxAccelerationMetersPerSecondSquared)
-//                 // Add kinematics to ensure max speed is actually obeyed
-//                 .setKinematics(DriveConstants.kDriveKinematics);
+    // public Command getAutonomousCommand() {
+    // // Create config for trajectory
+    // TrajectoryConfig config = new TrajectoryConfig(
+    // AutoConstants.kMaxSpeedMetersPerSecond,
+    // AutoConstants.kMaxAccelerationMetersPerSecondSquared)
+    // // Add kinematics to ensure max speed is actually obeyed
+    // .setKinematics(DriveConstants.kDriveKinematics);
 
-//         // An example trajectory to follow. All units in meters.
-//         Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
-//                 // Start at the origin facing the +X direction
-//                 new Pose2d(0, 0, new Rotation2d(0)),
-//                 // Pass through these two interior waypoints, making an 's' curve path
-//                 List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
-//                 // End 3 meters straight ahead of where we started, facing forward
-//                 new Pose2d(3, 0, new Rotation2d(0)),
-//                 config);
+    // // An example trajectory to follow. All units in meters.
+    // Trajectory exampleTrajectory = TrajectoryGenerator.generateTrajectory(
+    // // Start at the origin facing the +X direction
+    // new Pose2d(0, 0, new Rotation2d(0)),
+    // // Pass through these two interior waypoints, making an 's' curve path
+    // List.of(new Translation2d(1, 1), new Translation2d(2, -1)),
+    // // End 3 meters straight ahead of where we started, facing forward
+    // new Pose2d(3, 0, new Rotation2d(0)),
+    // config);
 
-//         var thetaController = new ProfiledPIDController(
-//                 AutoConstants.kPThetaController, 0, 0, AutoConstants.kThetaControllerConstraints);
-//         thetaController.enableContinuousInput(-Math.PI, Math.PI);
+    // var thetaController = new ProfiledPIDController(
+    // AutoConstants.kPThetaController, 0, 0,
+    // AutoConstants.kThetaControllerConstraints);
+    // thetaController.enableContinuousInput(-Math.PI, Math.PI);
 
-//         SwerveControllerCommand swerveControllerCommand = new SwerveControllerCommand(
-//                 exampleTrajectory,
-//                 chassis::getPose, // Functional interface to feed supplier
-//                 DriveConstants.kDriveKinematics,
+    // SwerveControllerCommand swerveControllerCommand = new
+    // SwerveControllerCommand(
+    // exampleTrajectory,
+    // chassis::getPose, // Functional interface to feed supplier
+    // DriveConstants.kDriveKinematics,
 
-//                 // Position controllers
-//                 new PIDController(AutoConstants.kPXController, 0, 0),
-//                 new PIDController(AutoConstants.kPYController, 0, 0),
-//                 thetaController,
-//                 chassis::setModuleStates,
-//                 chassis);
+    // // Position controllers
+    // new PIDController(AutoConstants.kPXController, 0, 0),
+    // new PIDController(AutoConstants.kPYController, 0, 0),
+    // thetaController,
+    // chassis::setModuleStates,
+    // chassis);
 
-//         // Reset odometry to the starting pose of the trajectory.
-//         chassis.resetOdometry(exampleTrajectory.getInitialPose());
+    // // Reset odometry to the starting pose of the trajectory.
+    // chassis.resetOdometry(exampleTrajectory.getInitialPose());
 
-//         // Run path following command, then stop at the end.
-//         return swerveControllerCommand.andThen(() -> chassis.drive(0, 0, 0, false, false));
-//     }
+    // // Run path following command, then stop at the end.
+    // return swerveControllerCommand.andThen(() -> chassis.drive(0, 0, 0, false,
+    // false));
+    // }
 }
