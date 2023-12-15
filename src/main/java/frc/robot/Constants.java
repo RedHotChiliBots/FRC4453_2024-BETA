@@ -54,6 +54,7 @@ public final class Constants {
     public static final double kBackRightChassisAngularOffset = Math.PI / 2;
 
     // SPARK MAX CAN IDs
+    public static final int kLinearSlideCanId = 50;
     public static final int kFrontLeftDrivingCanId = 30;
     public static final int kRearLeftDrivingCanId = 20;
     public static final int kFrontRightDrivingCanId = 40;
@@ -79,6 +80,7 @@ public final class Constants {
     
     public static final boolean kTurningMotorInverted = true;
     public static final boolean kDrivingMotorInverted = true;
+     public static final boolean kLinearSlideInverted = false;
 
     // Calculations required for driving motor conversion factors and feed forward
     public static final double kDrivingMotorFreeSpeedRps = NeoMotorConstants.kFreeSpeedRpm / 60;
@@ -116,16 +118,30 @@ public final class Constants {
 
     public static final IdleMode kDrivingMotorIdleMode = IdleMode.kBrake;
     public static final IdleMode kTurningMotorIdleMode = IdleMode.kBrake;
+     public static final IdleMode kLinearSlideIdleMode = IdleMode.kBrake;
 
     public static final int kDrivingMotorCurrentLimit = 50; // amps
     public static final int kTurningMotorCurrentLimit = 20; // amps
+    public static final int kLinearSlideCurrentLimit = 20;
+    public static final int kPDH_CAN_ID = 1;
   }
+
+ public static final class DigitalIO {
+  public static final int kDigitalSwitch = 0;
+    public static final int kChannelA = 8;
+      public static final int kChannelB = 9;
+ }
 
   public static final class OIConstants {
     public static final int kDriverControllerPort = 0;
+    public static final int kOperatorControllerPort = 1;
     public static final double kDriveDeadband = 0.05;
   }
-
+public static final class LinearSlideConstant{
+  public static final double gearBoxRatio = 12;
+  public static final double leadScrewTPI = 5;
+  public static final double posConversion = gearBoxRatio * leadScrewTPI;
+}
   public static final class AutoConstants {
     public static final double kMaxSpeedMetersPerSecond = 3;
     public static final double kMaxAccelerationMetersPerSecondSquared = 3;
